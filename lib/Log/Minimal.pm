@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base qw/Exporter/;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug/;
 
 our $PRINT = sub {
@@ -13,6 +13,15 @@ our $PRINT = sub {
 };
 
 our $ENV_DEBUG = "LM_DEBUG";
+
+our $LOG_LEVEL = 'DEBUG';
+my %log_level_map = (
+    DEBUG    => 1,
+    INFO     => 2,
+    WARN     => 3,
+    CRITICAL => 4,
+    MUTE     => 0,
+);
 
 sub critf {
     _log( "CRITICAL", 0, @_ );
@@ -27,7 +36,7 @@ sub infof {
 }
 
 sub debugf {
-    return unless $ENV{$ENV_DEBUG};
+    return if !$ENV{$ENV_DEBUG} || $log_level_map{DEBUG} < $log_level_map{uc $LOG_LEVEL};
     _log( "DEBUG", 0, @_ );
 }
 
@@ -44,13 +53,16 @@ sub infoff {
 }
 
 sub debugff {
-    return unless $ENV{$ENV_DEBUG};
+    return if !$ENV{$ENV_DEBUG} || $log_level_map{DEBUG} < $log_level_map{uc $LOG_LEVEL};
     _log( "DEBUG", 1, @_ );
 }
 
 sub _log {
     my $tag = shift;
     my $full = shift;
+
+    my $_log_level = $log_level_map{uc $LOG_LEVEL} || return;
+    return unless $log_level_map{$tag} >= $_log_level;
 
     my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) =
       localtime(time);
@@ -167,9 +179,18 @@ Display DEBUG messages with stack trace, if $ENV{LM_DEBUG} is true.
 
 =back
 
+=head1 ENVIRONMENT
+
+To print debugf and debugff messages, $ENV{LM_DEBUG} must be true.
+
+
 =head1 CUSTOMIZE
 
-To customize the method of outputting the log, set $Log::Minimal::PRINT.
+=over 4
+
+=item $Log::Minimal::PRINT
+
+To change the method of outputting the log, set $Log::Minimal::PRINT.
 
   # with PSGI Application. output log with request uri.
   my $app = sub {
@@ -182,16 +203,33 @@ To customize the method of outputting the log, set $Log::Minimal::PRINT.
       run_app(...);
   }
 
-default
+default is
 
   sub {
     my ( $time, $type, $message, $trace) = @_;
     warn "$time [$type] $message at $trace\n";
   }
 
+=item $Log::Minimal::LOG_LEVEL
+
+Set level to output log.
+
+  local $Log::Minimal::LOG_LEVEL = "WARN";
+  infof("foo"); #print nothing
+  warnf("foo");
+
+Support levels are DEBUG,INFO,WARN,CRITICAL and NONE.
+If NONE is set, no output. Default log level is DEBUG.
+
+=back
+
 =head1 AUTHOR
 
 Masahiro Nagano E<lt>kazeburo {at} gmail.comE<gt>
+
+=head1 THANKS TO
+
+Yuji Shimada (xaicron)
 
 =head1 SEE ALSO
 
