@@ -18,7 +18,10 @@ no_index:
     - inc
     - t
     - xt
+requires:
+  Data::Dumper: 0
+  Scalar::Util: 0
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/kazeburo/Log-Minimal.git
-version: 0.03
+version: 0.04

@@ -2,7 +2,8 @@ use inc::Module::Install;
 name 'Log-Minimal';
 all_from 'lib/Log/Minimal.pm';
 
-# requires '';
+requires 'Data::Dumper';
+requires 'Scalar::Util';
 
 tests 't/*.t';
 author_tests 'xt';
