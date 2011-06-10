@@ -16,6 +16,8 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
+t/01_croak.t
+t/02_color.t
 t/LogTest.pm
 xt/01_podspell.t
 xt/02_perlcritic.t

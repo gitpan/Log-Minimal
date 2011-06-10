@@ -3,9 +3,10 @@ package Log::Minimal;
 use strict;
 use warnings;
 use base qw/Exporter/;
+use Term::ANSIColor qw//;
 
-our $VERSION = '0.06';
-our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug/;
+our $VERSION = '0.07';
+our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug croak/;
 push @EXPORT, 'ddf';
 
 our $PRINT = sub {
@@ -13,10 +14,36 @@ our $PRINT = sub {
     warn "$time [$type] $message at $trace\n";
 };
 
+our $DIE = sub {
+    my ( $time, $type, $message, $trace) = @_;
+    die "$time [$type] $message at $trace\n";
+};
+
+our $DEFAULT_COLOR = {
+    info  => { text => 'green', },
+    debug => {
+        text       => 'red',
+        background => 'white',
+    },
+    'warn' => {
+        text       => 'black',
+        background => 'yellow',
+    },
+    'critical' => {
+        text       => 'black',
+        background => 'red'
+    },
+    'error' => {
+        text       => 'red',
+        background => 'black'
+    }
+};
+
 our $ENV_DEBUG = "LM_DEBUG";
 our $AUTODUMP = 0;
 our $LOG_LEVEL = 'DEBUG';
 our $TRACE_LEVEL = 0;
+our $COLOR = 0;
 
 my %log_level_map = (
     DEBUG    => 1,
@@ -24,6 +51,7 @@ my %log_level_map = (
     WARN     => 3,
     CRITICAL => 4,
     MUTE     => 0,
+    ERROR    => 99,
 );
 
 sub critf {
@@ -58,6 +86,16 @@ sub infoff {
 sub debugff {
     return if !$ENV{$ENV_DEBUG} || $log_level_map{DEBUG} < $log_level_map{uc $LOG_LEVEL};
     _log( "DEBUG", 1, @_ );
+}
+
+sub croakf {
+    local $PRINT = $DIE;
+    _log( "ERROR", 0, @_ );
+}
+
+sub croakff {
+    local $PRINT = $DIE;
+    _log( "ERROR", 1, @_ );
 }
 
 sub _log {
@@ -101,6 +139,15 @@ sub _log {
     $messages =~ s/\x0d/\\r/g;
     $messages =~ s/\x0a/\\n/g;
     $messages =~ s/\x09/\\t/g;
+
+    if ( $COLOR ) {
+        $messages = Term::ANSIColor::color($DEFAULT_COLOR->{lc($tag)}->{text}) 
+            . $messages . Term::ANSIColor::color("reset")
+                if $DEFAULT_COLOR->{lc($tag)}->{text};
+        $messages = Term::ANSIColor::color("on_".$DEFAULT_COLOR->{lc($tag)}->{background}) 
+            . $messages . Term::ANSIColor::color("reset")
+                if $DEFAULT_COLOR->{lc($tag)}->{background};
+    }
 
     $PRINT->(
         $time,
@@ -190,6 +237,10 @@ Log::Minimal - Minimal but customizable logger.
 
   my $serialize = ddf({ 'key' => 'value' });
 
+  # die with formatted message
+  croakf('foo');
+  croakff('%s %s', $code, $message);
+
 =head1 DESCRIPTION
 
 Log::Minimal is Minimal but customizable log module.
@@ -245,6 +296,17 @@ Display INFO messages with stack trace.
 
 Display DEBUG messages with stack trace, if $ENV{LM_DEBUG} is true.
 
+=item croakf(($message:Str|$format:Str,@list:Array));
+
+die with formatted $message
+
+  croakf("critical error");
+  # 2011-06-10T16:27:26 [ERROR] critical error at sample.pl line 23
+
+=item croakff(($message:Str|$format:Str,@list:Array));
+
+die with formatted $message with stack trace
+
 =item ddf($value:Any)
 
 Utility method that serializes given value with Data::Dumper;
@@ -262,6 +324,10 @@ To print debugf and debugff messages, $ENV{LM_DEBUG} must be true.
 =head1 CUSTOMIZE
 
 =over 4
+
+=item $Log::Minimal::COLOR
+
+Coloring log messages. Disabled by default.
 
 =item $Log::Minimal::PRINT
 
@@ -283,6 +349,22 @@ default is
   sub {
     my ( $time, $type, $message, $trace) = @_;
     warn "$time [$type] $message at $trace\n";
+  }
+
+=item $Log::Minimal::DIE
+
+To change the format of die message, set $Log::Minimal::DIE.
+
+  local $Log::Minimal::PRINT = sub {
+      my ( $time, $type, $message, $trace) = @_;
+      die "[$type] $message at $trace\n"; # not need time
+  };
+
+default is
+
+  sub {
+    my ( $time, $type, $message, $trace) = @_;
+    die "$time [$type] $message at $trace\n";
   }
 
 =item $Log::Minimal::LOG_LEVEL
