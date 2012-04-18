@@ -5,7 +5,7 @@ use warnings;
 use base qw/Exporter/;
 use Term::ANSIColor qw//;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug croak/;
 push @EXPORT, 'ddf';
 
@@ -43,7 +43,7 @@ our $ENV_DEBUG = "LM_DEBUG";
 our $AUTODUMP = 0;
 our $LOG_LEVEL = 'DEBUG';
 our $TRACE_LEVEL = 0;
-our $COLOR = 0;
+our $COLOR = $ENV{LM_COLOR} || 0;
 
 my %log_level_map = (
     DEBUG    => 1,
@@ -318,10 +318,19 @@ Utility method that serializes given value with Data::Dumper;
 
 =back
 
-=head1 ENVIRONMENT
+=head1 ENVIRONMENT VALUE
+
+=over 4
+
+=item $ENV{LM_DEBUG}
 
 To print debugf and debugff messages, $ENV{LM_DEBUG} must be true.
 
+=item $ENV{LM_COLOR}
+
+$ENV{LM_COLOR} is used as default value of $Log::Minimal::COLOR
+
+=back
 
 =head1 CUSTOMIZE
 
@@ -410,6 +419,8 @@ Masahiro Nagano E<lt>kazeburo {at} gmail.comE<gt>
 =head1 THANKS TO
 
 Yuji Shimada (xaicron)
+
+Yoshihiro Sugi (sugyan)
 
 =head1 SEE ALSO
 

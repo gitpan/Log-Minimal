@@ -18,6 +18,7 @@ README
 t/00_compile.t
 t/01_croak.t
 t/02_color.t
+t/03_color_by_env.t
 t/LogTest.pm
 xt/01_podspell.t
 xt/02_perlcritic.t
