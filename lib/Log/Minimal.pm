@@ -2,10 +2,9 @@ package Log::Minimal;
 
 use strict;
 use warnings;
-use base qw/Exporter/;
 use Term::ANSIColor qw//;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug croak/;
 push @EXPORT, 'ddf';
 
@@ -65,6 +64,51 @@ my %log_level_map = (
     MUTE     => 0,
     ERROR    => 99,
 );
+
+sub import {
+    my $class   = shift;
+    my $package = caller(0);
+    my @args = @_;
+
+    my %want_export;
+    my $env_debug;
+    while ( my $arg = shift @args ) {
+        if ( $arg eq 'env_debug' ) {
+            $env_debug = shift @args;
+        }
+        else {
+            $want_export{$arg} = 1;
+        }
+    }
+
+    if ( ! keys %want_export ) {
+        #all
+        $want_export{$_} = 1 for @EXPORT;
+    }
+
+    no strict 'refs';
+    for my $f (grep !/^debug/, @EXPORT) {
+        if ( $want_export{$f} ) {
+            *{"$package\::$f"} = \&$f;
+        }
+    }
+
+    for my $f (map { ($_.'f', $_.'ff') } qw/debug/) {
+        if ( $want_export{$f} ) {
+            if ( $env_debug ) {
+                *{"$package\::$f"} = sub {
+                    local $TRACE_LEVEL = $TRACE_LEVEL + 1;
+                    local $ENV_DEBUG   = $env_debug;
+                    $f->(@_);
+                };
+            }
+            else {
+                *{"$package\::$f"} = \&$f;
+            }
+        }
+    }
+
+}
 
 sub critf {
     _log( "CRITICAL", 0, @_ );
@@ -337,6 +381,17 @@ Utility method that serializes given value with Data::Dumper;
 =item $ENV{LM_DEBUG}
 
 To print debugf and debugff messages, $ENV{LM_DEBUG} must be true.
+
+You can change variable name from LM_DEBUG to arbitrary string which is specified by "env_debug" in use line. Changed variable name affects only in package locally.
+
+  use Log::Minimal env_debug => 'FOO_DEBUG';
+  
+  $ENV{LM_DEBUG}  = 1;
+  $ENV{FOO_DEBUG} = 0;
+  debugf("hello"); # no output
+  
+  $ENV{FOO_DEBUG} = 1;
+  debugf("world"); # print message
 
 =item $ENV{LM_COLOR}
 
