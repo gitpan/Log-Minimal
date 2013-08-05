@@ -3,13 +3,13 @@ abstract: 'Minimal but customizable logger.'
 author:
   - 'Masahiro Nagano <kazeburo {at} gmail.com>'
 build_requires:
-  ExtUtils::MakeMaker: 6.36
   Test::More: 0.98
 configure_requires:
-  ExtUtils::MakeMaker: 6.36
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
+  CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
+  Module::Build: 0.38
+dynamic_config: 0
+generated_by: 'Minilla/v0.5.6, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,14 +17,29 @@ meta-spec:
 name: Log-Minimal
 no_index:
   directory:
-    - inc
     - t
     - xt
+    - inc
+    - share
+    - eg
+    - examples
+    - author
+provides:
+  Log::Minimal:
+    file: lib/Log/Minimal.pm
+    version: 0.16
 requires:
   Data::Dumper: 0
   Scalar::Util: 0
   Term::ANSIColor: 0
 resources:
-  license: http://dev.perl.org/licenses/
+  bugtracker: https://github.com/kazeburo/Log-Minimal/issues
+  homepage: https://github.com/kazeburo/Log-Minimal
   repository: git://github.com/kazeburo/Log-Minimal.git
-version: 0.14
+version: 0.16
+x_contributors:
+  - 'sugyan <sugi1982@gmail.com>'
+  - 'tokuhirom <tokuhirom@gmail.com>'
+  - 'HIROSE Masaaki <hirose31@gmail.com>'
+  - 'xaicron <xaicron@gmail.com>'
+  - 'Masahiro Nagano <kazeburo@gmail.com>'
