@@ -9,7 +9,7 @@ configure_requires:
   CPAN::Meta::Prereqs: 0
   Module::Build: 0.38
 dynamic_config: 0
-generated_by: 'Minilla/v0.5.6, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Minilla/v0.8.4, CPAN::Meta::Converter version 2.132830'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -24,10 +24,11 @@ no_index:
     - eg
     - examples
     - author
+    - builder
 provides:
   Log::Minimal:
     file: lib/Log/Minimal.pm
-    version: 0.16
+    version: 0.17
 requires:
   Data::Dumper: 0
   Scalar::Util: 0
@@ -36,10 +37,11 @@ resources:
   bugtracker: https://github.com/kazeburo/Log-Minimal/issues
   homepage: https://github.com/kazeburo/Log-Minimal
   repository: git://github.com/kazeburo/Log-Minimal.git
-version: 0.16
+version: 0.17
 x_contributors:
   - 'sugyan <sugi1982@gmail.com>'
   - 'tokuhirom <tokuhirom@gmail.com>'
   - 'HIROSE Masaaki <hirose31@gmail.com>'
   - 'xaicron <xaicron@gmail.com>'
+  - 'hisaichi5518 <hisaichi5518@gmail.com>'
   - 'Masahiro Nagano <kazeburo@gmail.com>'

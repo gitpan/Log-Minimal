@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Term::ANSIColor qw//;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug croak/;
 push @EXPORT, 'ddf';
 
@@ -267,7 +267,7 @@ sub dumper {
     if ( defined $value && ref($value) ) {
         local $Data::Dumper::Terse = 1;
         local $Data::Dumper::Indent = 0; 
-        local $Data::Dumper::SortKeys = 1; 
+        local $Data::Dumper::Sortkeys = 1;
         $value = Data::Dumper::Dumper($value);
     }
     $value;
