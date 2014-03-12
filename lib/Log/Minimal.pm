@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Term::ANSIColor qw//;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 our @EXPORT = map { ($_.'f', $_.'ff') } qw/crit warn info debug croak/;
 push @EXPORT, 'ddf';
 
@@ -147,11 +147,13 @@ sub debugff {
 
 sub croakf {
     local $PRINT = $DIE;
+    local $LOG_LEVEL = 'DEBUG';
     _log( "ERROR", 0, @_ );
 }
 
 sub croakff {
     local $PRINT = $DIE;
+    local $LOG_LEVEL = 'DEBUG';
     _log( "ERROR", 1, @_ );
 }
 
@@ -469,7 +471,7 @@ Set level to output log.
   warnf("foo");
 
 Support levels are DEBUG,INFO,WARN,CRITICAL and NONE.
-If NONE is set, no output. Default log level is DEBUG.
+If NONE is set, no output except croakf and croakff. Default log level is DEBUG.
 
 =item $Log::Minimal::AUTODUMP
 
